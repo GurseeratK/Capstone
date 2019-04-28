@@ -3,30 +3,75 @@ from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
+import tkinter as tk
+import time
+import sys
 import sqlite3 
 from sqlite3 import Error
+
 # use text files method to store information and find ways to update it successfully 
 # for weekend, if can upload image of yourself
 root = tkinter.Tk()
 root.title("College Application Tracker")
-root.configure(background = "lightgrey")
-#root.resizable(False, False)
-#conn = sqlite3.connect("pythonsqlite3.db") 
-#c = conn.cursor()
+root.resizable(False,False)
 nb = ttk.Notebook(root, width = 1380, height = 730)
-nb.grid(row = 1, column = 0 )
+nb.grid(row = 1, column = 0)
+
 page1 = ttk.Frame(nb)
 page2 = ttk.Frame(nb)
 page3 = ttk.Frame(nb)
 nb.add(page1, text="Profile")
 nb.add(page2, text ="College Application Deadlines")
 nb.add(page3, text="Extracurricular Activities")
+
+#____________________
+
+class AnimatedGif(tk.Label):
+	"""
+	Class to show animated GIF file in a label
+	Use start() method to begin animation, and set the stop flag to stop it
+	"""
+	def __init__(self, root, gif_file, delay):
+		"""
+		:param root: tk.parent
+		:param gif_file: filename (and path) of animated gif
+		:param delay: delay between frames in the gif animation (float)
+		"""
+		tk.Label.__init__(self, root)
+		self.root = root
+		self.gif_file = gif_file
+		self.delay = delay  # Animation delay - try low floats, like 0.04 (depends on the gif in question)
+		self.stop = False  # Thread exit request flag
+
+		self._num = 0
+
+	def start(self):
+		""" Starts non-threaded version that we need to manually update() """
+		self.start_time = time.time()  # Starting timer
+		self._animate()
+
+	def stop(self):
+		""" This stops the after loop that runs the animation, if we are using the after() approach """
+		self.stop = True
+
+	def _animate(self):
+		try:
+			self.gif = tk.PhotoImage(file=self.gif_file, format='gif -index {}'.format(self._num))  # Looping through the frames
+			self.configure(image=self.gif)
+			self._num += 1
+		except tk.TclError:  # When we try a frame that doesn't exist, we know we have to start over from zero
+			self._num = 0
+			#self.stop = True  - to stop the animated gif after it has completed one cycle
+		if not self.stop:    # If the stop flag is set, we don't repeat
+			self.root.after(int(self.delay*1000), self._animate)
+		
+
 #Profile tab interior
 photo = PhotoImage(file="flower.gif")
-w = Label(page1, image=photo)
-w.photo = photo
-w.grid(row = 0, column = 0, rowspan = 2)
-txt_name = ttk.Entry(page1)
+v = Label(page1, image=photo)
+v.photo = photo
+v.grid(row = 0, column = 0, rowspan = 2)
+txt_profile_name = ttk.Entry(page1)
 txt_age = ttk.Entry(page1)
 txt_dob = ttk.Entry(page1)
 #lblfr_profile = ttk.LabelFrame(page1, text = "MY PROFILE") # not working
@@ -40,13 +85,11 @@ lbl_age = ttk.Label(page1, text="Age:")
 lbl_dob = ttk.Label(page1, text="DOB:\n*(dd/mm/yyyy)")
 lbl_gender = ttk.Label(page1, text="Gender:")
 lbl_space = ttk.Label(page1, text = "")
-btn_save = ttk.Button(page1, text = "Save", command = lambda: clicked)
-btn_update = ttk.Button(page1, text = "Update", command = lambda:clicked)
 var_chk = IntVar()
 rdl_1 = ttk.Radiobutton(page1,text = "Male", variable = var_chk, value = 1)
 rdl_2 = ttk.Radiobutton(page1,text = "Female", variable = var_chk, value = 2)
 rdl_3 = ttk.Radiobutton(page1,text = "Other", variable = var_chk, value = 3)
-txt_name.grid(row = 0, column = 2)
+txt_profile_name.grid(row = 0, column = 2)
 txt_age.grid(row = 1, column = 2)
 txt_dob.grid(row = 2, column =2)
 hobbies.grid(row = 4, column = 2, rowspan = 4)
@@ -61,14 +104,47 @@ lbl_career.grid(row = 9, column = 1) #
 rdl_1.grid(row =3, column = 2, sticky = "w")
 rdl_2.grid(row =3, column = 2, sticky = "")
 rdl_3.grid(row =3, column = 2, sticky = "e")
-btn_update.grid(row= 13, column = 2)
-btn_save.grid(row =13, column = 1)
+
 
 #College deadlines tab interior
 #FUNCTIONS
-
-#College widgets
 lblfr_college = ttk.LabelFrame(page2, text = "College Information") # Information labelframe - top
+frame =tk. Frame(page2,width=200, height=200,colormap="new")
+frame.grid(row = 0, column = 0,sticky = "ne")
+#College widgets
+def help():
+	top = Toplevel()
+	top.title("Help")
+	
+	photo = PhotoImage(file="college.gif")
+	w = Label(top, image=photo)
+	w.photo = photo
+	w.grid(row = 0, column = 3)
+def animation():
+	lbl_with_my_gif = AnimatedGif(frame,'iconic.gif',0.01)
+#lbl_with_my_gif = AnimatedGif(page3,'back_1.gif',0.01)
+
+	lbl_with_my_gif.grid(row = 0, column = 0)  # Packing the label with the animated gif (grid works just as well)
+  # Shows gif at first frame and we are ready to go
+	lbl_with_my_gif.start()
+	
+#photo_2 = PhotoImage(file="iconic.gif")
+animation()
+btn_help = tk.Button(frame,text = "HELP",command = help,bg = "blue",width = 7, height = 1)
+btn_help.grid(row = 1, column = 0)
+
+#btn = tk.Button(frame)
+
+#btn_help.grid(ipady = 10)
+#animation()
+#animation()
+#btn_help_1 = ttk.Button(lblfr_college,text = "HELP",command = help)
+#btn_help.config(image = photo_2)
+#btn_help_1.grid(row = 9, column =8)
+#btn_animation = ttk.Button(page1, text = "animate",command = animate)
+#btn_animation.grid(row = 10, column = 0)
+
+#____________________________
 lbl_index = ttk.Label(lblfr_college,text = "Index no.")
 lbl_name = ttk.Label(lblfr_college, text = "Name of College: *", font = ("Arial", 15))
 lbl_tuition_fees = ttk.Label(lblfr_college, text = "Tuition fees: *", font = ("Arial",15))
@@ -106,6 +182,30 @@ def length_of_text(event):
 # Activity widgets
 lblfr_activity = ttk.LabelFrame(page3, text = "Extracurricular Inforamtion")
 lblfr_text = ttk.LabelFrame(page3, text = "Description(in less than 100 words):") #
+frame_1 =tk. Frame(lblfr_text,width=200, height=200,colormap="new")
+frame_1.grid(row = 0, column = 1,sticky = "ne")
+#College widgets
+def help():
+	top = Toplevel()
+	top.title("Help")
+	
+	photo = PhotoImage(file="college.gif")
+	w = Label(top, image=photo)
+	w.photo = photo
+	w.grid(row = 0, column = 3)
+def animation():
+	lbl_with_my_gif = AnimatedGif(frame_1,'iconic.gif',0.01)
+#lbl_with_my_gif = AnimatedGif(page3,'back_1.gif',0.01)
+
+	lbl_with_my_gif.grid(row = 0, column = 0)  # Packing the label with the animated gif (grid works just as well)
+  # Shows gif at first frame and we are ready to go
+	lbl_with_my_gif.start()
+#photo_2 = PhotoImage(file="iconic.gif")
+animation()
+btn_help = tk.Button(frame_1,text = "HELP",command = help,width = 7, height = 1)
+btn_help.grid(row = 1, column = 0)
+
+#
 lbl_word_alert = ttk.Label(lblfr_text,text = "                                                                                                                                      ", font = ("Arial",15) ,foreground = "red", justify = "left")
 lbl_activity = ttk.Label(lblfr_activity, text = "Extracurricular Activity: *", font = ("Arial", 15))
 lbl_type = ttk.Label(lblfr_activity, text = "Type: *", font = ("Arial",15))
@@ -132,7 +232,6 @@ txt_word_count.grid(row = 2, column = 0)
 #Treeview
 
 tree = ttk.Treeview(page2, selectmode ="browse",columns = ("College","Fees","Accomo.","Program","Rank","Location","Requirements","doc","app"))
-scrollbar_horizontal = ttk.Scrollbar(page2, orient='horizontal', command = tree.xview)    
 tree.heading("#0", text="IDX")
 tree.column("#0",width=50)
 tree.heading("College",text = "College")
@@ -171,7 +270,7 @@ tree_2.column("description",width = 350)
 
 #Grid for activity tab(page 3)
 lblfr_activity.grid(row = 0, column = 0, sticky = "w")
-lblfr_text.grid(row = 0, column = 0, sticky = 'ne') #
+lblfr_text.grid(row = 0, column = 0, sticky = 'e') #
 lbl_activity.grid(row = 0, column = 0)
 lbl_type.grid(row = 1, column = 0)
 lbl_sch_years.grid(row = 2, column = 0)
@@ -249,8 +348,17 @@ def create_table(conn, create_table_sql):
 def main_to_create_table():
     database = "pythonsqlite3.db"
     
+    sql_create_profile = """ CREATE TABLE IF NOT EXISTS profile (
+                                        "name" text NOT NULL,
+                                        "age" text,
+                                        "dob" text,
+                                        "career" text,
+                                        "hobbies" text,
+                                        "gender" text
+                                    ); """
+    
     sql_create_college_info_table = """ CREATE TABLE IF NOT EXISTS college_info (
-                                        "IDX" integer PRIMARY KEY,
+                                        "IDX" text,
                                         "name" text NOT NULL,
                                         "tuition fees" text,
                                         "accomodation cost" text,
@@ -263,7 +371,7 @@ def main_to_create_table():
                                     ); """
  
     sql_create_activity_table = """CREATE TABLE IF NOT EXISTS extracurricular_activities (
-                                   "IDX" integer PRIMARY KEY,
+                                   "IDX" text,
                                     "activity" text NOT NULL,
                                     "type" text,
                                     "school years" numeric,
@@ -280,6 +388,8 @@ def main_to_create_table():
     if conn is not None:
         # create college_info table
         create_table(conn, sql_create_college_info_table)
+        # create profile database to store data
+        create_table(conn,sql_create_profile)
         # create activity table
         create_table(conn, sql_create_activity_table)
     else:
@@ -287,6 +397,13 @@ def main_to_create_table():
 
 if __name__ == '__main__':
     main_to_create_table()
+
+def create_profile(conn, profile_data):
+	sql = " INSERT INTO profile('name','age','dob','career','hobbies','gender') VALUES(?,?,?,?,?,?)" #,'description')
+	cur = conn.cursor()
+	cur.execute(sql, profile_data)
+	conn.commit()
+	return cur.lastrowid # to return the index
     
 def create_activity(conn, activity_entry):
     sql = " INSERT INTO extracurricular_activities('IDX','activity','type','school years','years','hours per week','weeks per year','status','description') VALUES(?,?,?,?,?,?,?,?,?)" #,'description')
@@ -294,6 +411,8 @@ def create_activity(conn, activity_entry):
     cur.execute(sql, activity_entry)
     conn.commit()
     return cur.lastrowid # to return the index
+
+
 def create_college_info(conn, college_entry):
  
     sql = " INSERT INTO college_info('IDX','name','tuition fees','accomodation cost','program','competitiveness','location','requirements','document submission deadline','application deadline') VALUES(?,?,?,?,?,?,?,?,?,?)"
@@ -302,6 +421,7 @@ def create_college_info(conn, college_entry):
     conn.commit()
     return cur.lastrowid
     
+
 def read_from_database_1():
     database = "pythonsqlite3.db"
     conn = return_conn(database)
@@ -324,6 +444,7 @@ def read_from_database_2():
 
 read_from_database_2()
 
+		
 def main_to_insert_in_table_2():
 	database = "pythonsqlite3.db"
  
@@ -344,7 +465,14 @@ def main_to_insert_in_table():
 		create_college_info(conn, college_1)
 		tree.insert("", "end", text=txt_index.get(), values=(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get()))
 		messagebox.showinfo("Update", "Successfully added to database.")
-
+#def main():
+	#database = "pythonsqlite3.db"
+ # create a database connection
+	#conn = return_conn(database)
+	#with conn:
+		#profile_1 = ("","","","","","")	
+		#create_profile(conn,profile_1)
+#main_()		
 def selected_item(a): 
 	database = "pythonsqlite3.db"
 	conn = return_conn(database)
@@ -483,7 +611,18 @@ def main_to_delete_all_2():
 		for i in tree_2.get_children():
 			tree_2.delete(i)
 		delete_all_activities(conn)
-		
+def update_profile(conn, profile_data):
+    sql = '''UPDATE profile
+              SET 'name' = ? ,
+                  'age' = ? ,
+                  'dob' = ?,
+                  'gender' = ?,
+                  'hobbies'=?,
+                  'career'=?
+              '''
+    cur = conn.cursor()
+    cur.execute(sql, profile_data)
+    		
 def update_college(conn, college_entry):
     sql = '''UPDATE college_info
               SET 'name' = ? ,
@@ -494,13 +633,14 @@ def update_college(conn, college_entry):
                   'location'=?,
                   'requirements'=?,
                   'document submission deadline'=?,
-                  'application deadline'=?
-              WHERE IDX = ? '''
+                  'application deadline'=?,
+                  'IDX'=?
+               '''
     cur = conn.cursor()
     cur.execute(sql, college_entry)
     tree.item(tree.selection(), text=txt_index.get(), values=(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get()))
 #'IDX','activity','type','school years','years','hours per week','weeks per year','status
-
+#https://ezgif.com/video-to-gif/ezgif-2-c7fcf819360c.mov
 def update_activity(conn, activity_entry):
     sql = '''UPDATE extracurricular_activities
               SET 'activity' = ? ,
@@ -510,14 +650,56 @@ def update_activity(conn, activity_entry):
                   'hours per week'=?,
                   'weeks per year'=?,
                   'status'=?,
-                  'description'=?
-              WHERE IDX = ? '''
+                  'description'=?,
+                  'IDX'=?
+              '''
     cur = conn.cursor()
     cur.execute(sql, activity_entry)
     		#tree_2.insert("","end",text = txt_index_2.get(),values =(txt_activity.get(),txt_type.get(),txt_school_years.get(),txt_years.get(),txt_hr_wk.get(),txt_wk_yr.get(),txt_status.get()))#,description.get("1.0", "end-1c")))
 	
-    tree_2.item(tree_2.selection(),text = txt_index_2.get(),values =(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"),txt_index_2.get()))#,description.get("1.0", "end-1c")))
+    tree_2.item(tree_2.selection(),text = txt_index_2.get(),values =(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c")))#,description.get("1.0", "end-1c")))
 
+def main_update_0():
+	database = "pythonsqlite3.db"
+ 
+    # create a database connection
+	conn = return_conn(database)
+	
+	with conn:
+		#profile = (txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
+    # create a database connection    		#profile = (txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
+		confirm = messagebox.askyesno("Update","Press ok if you want to make the following changes to your profile.")
+		if confirm == True:
+			update_profile(conn,(txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c")))
+		if confirm == False:
+			txt_profile_name.delete(0,"end")
+			txt_dob.delete(0,"end")
+			txt_age.delete(0,"end")
+			hobbies.delete(1.0,"end")
+			career.delete(1.0,"end")
+			read()
+					
+def read():
+	database = "pythonsqlite3.db"
+  # create a database connection
+	conn = return_conn(database)
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM profile")
+	rows = cur.fetchall()
+	for row in rows:
+		txt_profile_name.insert(0,row[0])
+		txt_age.insert(0,row[1])
+		txt_dob.insert(0,row[2])
+		var_chk.set(row[5])
+		hobbies.insert(1.0,row[4])
+		career.insert(1.0,row[3])
+		
+read()		
+
+		
+		
+
+   		
 def main_update():
     database = "pythonsqlite3.db"
     # create a database connection
@@ -533,7 +715,7 @@ def main_update_2():
         update_activity(conn,(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"),txt_index_2.get()))#,description.get("1.0", "end-1c")))
 
 btn_insertion_2 = ttk.Button(lblfr_activity,text = "Add to Database",command =main_to_insert_in_table_2)
-btn_insertion_2.grid(row = 8, column = 4)
+btn_insertion_2.grid(row = 8, column = 0)
 btn_delete_2 = ttk.Button(lblfr_activity,text ="Delete",command = main_to_delete_2)
 btn_delete_all_2 = ttk.Button(lblfr_activity,text ="Delete All",command = main_to_delete_all_2)
 btn_delete_all_2.grid(row = 8, column = 5)
@@ -551,6 +733,9 @@ btn_delete.grid(row = 10, column = 2)
 btn_update = ttk.Button(lblfr_college,text = "Update",command = main_update)
 btn_update.grid(row = 10, column = 3)
     
+# profile tab
+btn_save = ttk.Button(page1, text = "Save", command = main_update_0)
+btn_save.grid(row =13, column = 1)
 root.mainloop()
 
 
