@@ -2,7 +2,6 @@ import tkinter
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
-from tkinter import filedialog
 import tkinter as tk
 import time
 import sys
@@ -145,7 +144,7 @@ btn_help.grid(row = 1, column = 0)
 #btn_animation.grid(row = 10, column = 0)
 
 #____________________________
-lbl_index = ttk.Label(lblfr_college,text = "Index no.")
+lbl_index = ttk.Label(lblfr_college,text = "Index no.*(unique for each entry)")
 lbl_name = ttk.Label(lblfr_college, text = "Name of College: *", font = ("Arial", 15))
 lbl_tuition_fees = ttk.Label(lblfr_college, text = "Tuition fees: *", font = ("Arial",15))
 lbl_accomodation_cost = ttk.Label(lblfr_college, text = "Accomodation cost: ", font = ("Arial",15))
@@ -188,8 +187,7 @@ frame_1.grid(row = 0, column = 1,sticky = "ne")
 def help():
 	top = Toplevel()
 	top.title("Help")
-	
-	photo = PhotoImage(file="college.gif")
+	photo = PhotoImage(file="activity.gif")
 	w = Label(top, image=photo)
 	w.photo = photo
 	w.grid(row = 0, column = 3)
@@ -212,9 +210,9 @@ lbl_type = ttk.Label(lblfr_activity, text = "Type: *", font = ("Arial",15))
 lbl_sch_years = ttk.Label(lblfr_activity, text = "School years involved in activity: *", font = ("Arial",15))
 lbl_years = ttk.Label(lblfr_activity, text = "No. of years involved in activity: *", font = ("Arial",15))
 lbl_hrs_per_wk = ttk.Label(lblfr_activity, text = "Time spent per week (in hours): *", font = ("Arial",15))
-lbl_wks_per_yr = ttk.Label(lblfr_activity, text = "Weeks spent per year : ", font = ("Arial",15))
-lbl_status = ttk.Label(lblfr_activity,text = "Status([A]ctive/[U]nactive): ",font = ("Arial",15))
-lbl_index_2 = ttk.Label(lblfr_activity,text = "Index no.", font = ("Arial",15))
+lbl_wks_per_yr = ttk.Label(lblfr_activity, text = "Weeks spent per year *: ", font = ("Arial",15))
+lbl_status = ttk.Label(lblfr_activity,text = "Status([A]ctive/[U]nactive):*",font = ("Arial",15))
+lbl_index_2 = ttk.Label(lblfr_activity,text = "Index no.*(unique for each entry)", font = ("Arial",15))
 txt_index_2 = ttk.Entry(lblfr_activity)
 txt_activity = ttk.Entry(lblfr_activity)
 txt_type = ttk.Entry(lblfr_activity)
@@ -358,7 +356,7 @@ def main_to_create_table():
                                     ); """
     
     sql_create_college_info_table = """ CREATE TABLE IF NOT EXISTS college_info (
-                                        "IDX" text,
+                                        "IDX" text PRIMARY KEY,
                                         "name" text NOT NULL,
                                         "tuition fees" text,
                                         "accomodation cost" text,
@@ -371,7 +369,7 @@ def main_to_create_table():
                                     ); """
  
     sql_create_activity_table = """CREATE TABLE IF NOT EXISTS extracurricular_activities (
-                                   "IDX" text,
+                                   "IDX" text PRIMARY KEY,
                                     "activity" text NOT NULL,
                                     "type" text,
                                     "school years" numeric,
@@ -421,7 +419,6 @@ def create_college_info(conn, college_entry):
     conn.commit()
     return cur.lastrowid
     
-
 def read_from_database_1():
     database = "pythonsqlite3.db"
     conn = return_conn(database)
@@ -444,27 +441,33 @@ def read_from_database_2():
 
 read_from_database_2()
 
-		
 def main_to_insert_in_table_2():
 	database = "pythonsqlite3.db"
  
     # create a database connection
 	conn = return_conn(database)
 	with conn:
-		activity_1 = (txt_index_2.get(),txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
-		create_activity(conn, activity_1)
-		tree_2.insert("","end",text = txt_index_2.get(),values =(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c")))#,description.get("1.0", "end-1c")))
-		messagebox.showinfo("Update","Successfully added to database.")
+		
+		if txt_index_2.get() == "" or txt_activity.get() == "" or txt_type.get() == "" or txt_sch_years.get() == "" or txt_years == "" or txt_hrs_per_wk.get() == "" or txt_wks_per_yr.get() == "" or txt_status.get() == "":
+			messagebox.showinfo("Error","Please fill in necessary entries(marked by *)")
+		else:
+			activity_1 = (txt_index_2.get(),txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
+			create_activity(conn, activity_1)
+			tree_2.insert("","end",text = txt_index_2.get(),values =(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c")))
+			messagebox.showinfo("Update","Successfully added to the database.")
  		
 def main_to_insert_in_table():
 	database = "pythonsqlite3.db"
- # create a database connection
 	conn = return_conn(database)
+ # create a database connection
 	with conn:
-		college_1 =(txt_index.get(),txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get())
-		create_college_info(conn, college_1)
-		tree.insert("", "end", text=txt_index.get(), values=(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get()))
-		messagebox.showinfo("Update", "Successfully added to database.")
+		if txt_index.get() == "" or txt_name.get() == "" or txt_tuition_fees.get() == "" or txt_accomodation_cost.get() == "" or txt_program.get() == "" or txt_rank_sw == "" or txt_location.get() == "" or txt_requirements.get() == "" or txt_doc.get() == "" or txt_app.get() == "":
+			messagebox.showinfo("Error","Please fill in necessary entries(marked by *)")
+		else:
+			college_1 =(txt_index.get(),txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get())
+			create_college_info(conn, college_1)
+			tree.insert("", "end", text=txt_index.get(), values=(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get()))
+			messagebox.showinfo("Update", "Successfully added to database.")
 #def main():
 	#database = "pythonsqlite3.db"
  # create a database connection
@@ -581,36 +584,45 @@ def main_to_delete():
     # create a database connection
 	conn = return_conn(database)
 	with conn:
-		tree.delete(tree.selection())
-		delete_college(conn,txt_index.get())
+		confirmation = messagebox.askokcancel("Confirmation","Are you sure you want to delete the selected entry.Press ok to confirm")
+		if confirmation == True:
+			tree.delete(tree.selection())
+			delete_college(conn,txt_index.get())
 
 def main_to_delete_2():
 	database = "pythonsqlite3.db"
     # create a database connection
 	conn = return_conn(database)
 	with conn:
-		tree_2.delete(tree_2.selection())
-		delete_activity(conn,txt_index_2.get())
+		confirmation = messagebox.askokcancel("Confirmation","Are you sure you want to delete the selected entry. Press ok to confirm")
+		if confirmation == True:
+			tree_2.delete(tree_2.selection())
+			delete_activity(conn,txt_index_2.get())
 	
 def main_to_delete_all():
 	database = "pythonsqlite3.db"
     # create a database connection
 	conn = return_conn(database)
 	with conn:
-		database = "pythonsqlite3.db"
-		for i in tree.get_children():
-			tree.delete(i)
-		delete_all_colleges(conn)
+		confirm = messagebox.askokcancel("Confirmation","Are you sure you want to delete all entries. Press ok to confirm")
+		if confirm == True:		
+			database = "pythonsqlite3.db"
+			for i in tree.get_children():
+				tree.delete(i)
+			delete_all_colleges(conn)
 		
 def main_to_delete_all_2():
 	database = "pythonsqlite3.db"
     # create a database connection
 	conn = return_conn(database)
 	with conn:
-		database = "pythonsqlite3.db"
-		for i in tree_2.get_children():
-			tree_2.delete(i)
-		delete_all_activities(conn)
+		confirm = messagebox.askokcancel("Confirmation","Are you sure you want to delete all entries. Press ok to confirm")
+		if confirm == True:
+			database = "pythonsqlite3.db"
+			for i in tree_2.get_children():
+				tree_2.delete(i)
+			delete_all_activities(conn)
+			
 def update_profile(conn, profile_data):
     sql = '''UPDATE profile
               SET 'name' = ? ,
@@ -671,6 +683,7 @@ def main_update_0():
 		confirm = messagebox.askyesno("Update","Press ok if you want to make the following changes to your profile.")
 		if confirm == True:
 			update_profile(conn,(txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c")))
+			messagebox.showinfo("Update","Saved")
 		if confirm == False:
 			txt_profile_name.delete(0,"end")
 			txt_dob.delete(0,"end")
@@ -687,32 +700,42 @@ def read():
 	cur.execute("SELECT * FROM profile")
 	rows = cur.fetchall()
 	for row in rows:
-		txt_profile_name.insert(0,row[0])
-		txt_age.insert(0,row[1])
-		txt_dob.insert(0,row[2])
-		var_chk.set(row[5])
-		hobbies.insert(1.0,row[4])
-		career.insert(1.0,row[3])
-		
-read()		
+		if row[0] != "":
+			txt_profile_name.insert(0,row[0])
+			txt_age.insert(0,row[1])
+			txt_dob.insert(0,row[2])
+			career.insert(1.0,row[3])
+			hobbies.insert(1.0,row[4])
+			var_chk.set(row[5])
 
-		
-		
-
-   		
+read()
+	
 def main_update():
-    database = "pythonsqlite3.db"
+	database = "pythonsqlite3.db"
     # create a database connection
-    conn = return_conn(database)
-    with conn:
-        update_college(conn,(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get(),txt_index.get()))
+	conn = return_conn(database)
+	with conn:
+		if txt_index.get() == "" or txt_name.get() == "" or txt_tuition_fees.get() == "" or txt_accomodation_cost.get() == "" or txt_program.get() == "" or txt_rank_sw == "" or txt_location.get() == "" or txt_requirements.get() == "" or txt_doc.get() == "" or txt_app.get() == "":
+			messagebox.showerror("Error","Please fill in necessary entries(marked by *)")
+		else:
+			confirm = messagebox.askokcancel("Update","Press OK to update the entry into the database otherwise press cancel to return.")
+			if confirm == True:
+				update_college(conn,(txt_name.get(),txt_tuition_fees.get(),txt_accomodation_cost.get(),txt_program.get(),txt_rank_sw.get(),txt_location.get(),txt_requirements.get(),txt_doc.get(),txt_app.get(),txt_index.get()))
+				messagebox.showinfo("Update","Successful")
         
 def main_update_2():
-    database = "pythonsqlite3.db"
+	database = "pythonsqlite3.db"
     # create a database connection
-    conn = return_conn(database)
-    with conn:
-        update_activity(conn,(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"),txt_index_2.get()))#,description.get("1.0", "end-1c")))
+	conn = return_conn(database)
+	with conn:
+		if txt_index_2.get() == "" or txt_activity.get() == "" or txt_type.get() == "" or txt_sch_years.get() == "" or txt_years == "" or txt_hrs_per_wk.get() == "" or txt_wks_per_yr.get() == "" or txt_status.get() == "":
+			messagebox.showinfo("Error","Please fill in necessary entries(marked by *)")
+		else:
+			confirm = messagebox.askokcancel("Update","Press OK to update the entry into the database otherwise press cancel to return.")
+			if confirm == True:
+				update_activity(conn,(txt_activity.get(),txt_type.get(),txt_sch_years.get(),txt_years.get(),txt_hrs_per_wk.get(),txt_wks_per_yr.get(),txt_status.get(),general_description.get("1.0", "end-1c"),txt_index_2.get()))#,description.get("1.0", "end-1c")))
+				messagebox.showinfo("Update","Successful")
+
 
 btn_insertion_2 = ttk.Button(lblfr_activity,text = "Add to Database",command =main_to_insert_in_table_2)
 btn_insertion_2.grid(row = 8, column = 0)
