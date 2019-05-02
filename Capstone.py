@@ -680,7 +680,7 @@ def main_update_0():
 	with conn:
 		#profile = (txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
     # create a database connection    		#profile = (txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c"))#,description.get("1.0", "end-1c"))
-		confirm = messagebox.askyesno("Update","Press ok if you want to make the following changes to your profile.")
+		confirm = messagebox.askokcancel("Update","Press ok if you want to make the following changes to your profile.")
 		if confirm == True:
 			update_profile(conn,(txt_profile_name.get(),txt_age.get(),txt_dob.get(),var_chk.get(),hobbies.get("1.0", "end-1c"),career.get("1.0", "end-1c")))
 			messagebox.showinfo("Update","Saved")
